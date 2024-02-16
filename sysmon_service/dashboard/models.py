@@ -4,11 +4,7 @@ from django.db import models
 
 class UserAccount(models.Model):
     username = models.CharField(max_length = 100)
-    password = models.CharField(max_length = 100)
-    last_login_date = models.DateTimeField(null = True)
 
-    def __str__(self):
-        return self.username
     
 class TimeUsage(models.Model):
     useraccount = models.ForeignKey(UserAccount, on_delete = models.CASCADE)

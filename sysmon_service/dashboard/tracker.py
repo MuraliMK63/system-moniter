@@ -1,9 +1,12 @@
 import pygetwindow as gw
 
-from time import time
-from datetime import timedelta, datetime
 
-from .models import TimeUsage
+from threading import Thread
+from time import time
+from datetime import datetime
+import os
+
+from .models import TimeUsage, UserAccount
 
 
 def get_active_application():
@@ -17,19 +20,22 @@ def get_active_application():
     return "Unknown"
 
 
-def main_tracker(user):
+def main_tracker(name):
     while True:
         current_app = get_active_application()
-        entry = TimeUsage.objects.filter(useraccount = user, date = datetime.now().date()).first()
+        user = UserAccount.objects.filter(username = name)
+        if user:
+            useraccount = user.first()
+        else:
+            useraccount = UserAccount.objects.create(username = name)
+        entry = TimeUsage.objects.filter(useraccount = useraccount, date = datetime.now().date())
         if not entry:
-            entry = TimeUsage.objects.create(useraccount = user, date = datetime.now().date(), usage_json = {}, previous_app = None, previous_url = None) 
-        current_app_name = current_app.split('-')[-1]
-        current_url_name = "/".join(current_app.split("-")[::-1])           
+            entry = TimeUsage.objects.create(useraccount = useraccount, date = datetime.now().date(), usage_json = {}, previous_app = None, previous_url = None) 
+        else:
+            entry = entry.first()
+        current_app_name = current_app.split('-')[-1].strip() if current_app else "Others"
+        current_url_name = "/".join(current_app.split("-")[::-1]).strip() if current_app else "Other Urls"          
         if entry.previous_app == None:
-            # Previous code
-            # current_application = current_app
-            # app_timestamp[current_application] = time()
-            # app_timings[current_application] = 0
             # New code
             temp_json = { current_url_name : {"time_spent" : 0, "in_time" : time()} }
             entry.usage_json[current_app_name] = temp_json
@@ -37,14 +43,6 @@ def main_tracker(user):
             entry.previous_url = current_url_name
             entry.save()
         else:
-            # Previous code
-            # if current_app != current_application:
-            #     time_duration = time() - app_timestamp[current_application]
-            #     app_timings[current_application] += time_duration
-            #     current_application = current_app
-            #     if current_application not in app_timings:
-            #         app_timings[current_application] = 0
-            #     app_timestamp[current_application] = time()
             # New code
             if entry.previous_url != current_url_name:
                 # Getting previous API's start time
@@ -69,7 +67,9 @@ def main_tracker(user):
                 entry.previous_app = current_app_name
                 entry.previous_url = current_url_name
                 entry.save()
-    # else:
-    #     time_duration = time() - app_timestamp[current_application]
-    #     app_timings[current_application] += time_duration
+
     
+def start_tracking():
+    username = os.getlogin()
+    tracker_thread = Thread(target = main_tracker, args = (username,))
+    tracker_thread.start()

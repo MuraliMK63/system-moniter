@@ -44,17 +44,23 @@ INSTALLED_APPS = [
 
     # Third-Party libraries
     'rest_framework',
+    'rest_framework_swagger',
+    'drf_yasg',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'sysmon_service.urls'
 
@@ -81,16 +87,17 @@ WSGI_APPLICATION = 'sysmon_service.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default':  {
-        "ENGINE": "mssql",
-        "NAME": "Murali",
-        "USER": "RndDev",
-        "PASSWORD": "password@123",
-        "HOST": "192.168.7.77",
-        "PORT": "",
-        "OPTIONS": {"driver": "ODBC Driver 17 for SQL Server", 
+    'default':  {  
+        'ENGINE': 'django.db.backends.mysql',  
+        'NAME': 'system_moniter',  
+        'USER': 'root',  
+        'PASSWORD': 'Kaladevi1@',  
+        'HOST': '127.0.0.1',  
+        'PORT': '3306',  
+        'OPTIONS': {  
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"  
         },
-    }
+    }  
 }
 
 
